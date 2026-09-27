@@ -1,0 +1,121 @@
+[English](README.md) · [한국어](README.ko.md)
+
+# make-awesome-video
+
+An agent skill (Claude Code, Codex, and other skill-aware agents) that directs **pro-level motion-graphics launch videos** instead of one-shot "prompt → video" attempts.
+
+Everyone uses the same model. The context you give it is what makes a video look pro. Without references the agent falls back to its defaults: centered text, a gradient background, and every element fading in. This skill replaces that with a director's workflow:
+
+1. **Reference videos.** Search [whatships.com](https://whatships.com), pick 1–2 videos, and turn them into a measurable style spec covering pacing, type, transitions and palette.
+2. **Code-to-MP4 rendering.** [HyperFrames](https://github.com/heygen-com/hyperframes) (default) or [Remotion](https://www.remotion.dev). Every frame is exact, and a change means editing one line and re-rendering.
+3. **Real UI components.** Your real screenshots, or [21st](https://21st.dev/mcp) and shadcn components. The agent does not invent UI.
+4. **Full context in.** Brand (logo, colors, fonts), product screenshots, references and your braindump, turned into **3 storyboard variants that each take a different direction**.
+5. **Still frames before motion.** One hero frame per scene. Fixing a storyboard takes seconds; fixing a render means rendering again.
+6. **Director notes.** Camera language like "slow all zooms to 0.7x", "hard cut here" or "push in on the button" is mapped to exact parameter changes.
+
+The agent stops and waits for you at 4 gates: references, storyboard, stills and notes.
+
+## Quick start
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NewTurn2017/make-awesome-video/main/install.sh | bash
+```
+
+This installs the skill to `~/.claude/skills/make-awesome-video` (and links it into `~/.agents/skills` if you use Codex or other agents). It then checks for the following and **installs whatever is missing**:
+
+| Tool | Why |
+|---|---|
+| Node.js 22+ | runs HyperFrames / Remotion |
+| ffmpeg / ffprobe | rendering and reference analysis |
+| yt-dlp | downloads reference videos |
+| HyperFrames CLI + Chrome + official agent skills | default renderer |
+| Remotion agent skills + `create-video` | alternative renderer |
+| 21st MCP | optional. Only checked, never auto-installed (needs your API key) |
+
+Restart your agent session afterwards so the new skills load. Then just ask:
+
+```
+Make a launch video for my product
+/make-awesome-video
+```
+
+### Install options
+
+```bash
+# only one renderer
+curl -fsSL https://raw.githubusercontent.com/NewTurn2017/make-awesome-video/main/install.sh | MAV_ENGINE=hyperframes bash
+
+# skill only, no dependency setup
+curl -fsSL https://raw.githubusercontent.com/NewTurn2017/make-awesome-video/main/install.sh | MAV_SKIP_DEPS=1 bash
+
+# custom location
+curl -fsSL https://raw.githubusercontent.com/NewTurn2017/make-awesome-video/main/install.sh | MAV_DIR=~/my-skills/make-awesome-video bash
+```
+
+Re-running the installer updates an existing git install (`git pull --ff-only`).
+
+Check or repair dependencies any time:
+
+```bash
+bash ~/.claude/skills/make-awesome-video/scripts/setup.sh --check
+bash ~/.claude/skills/make-awesome-video/scripts/setup.sh
+```
+
+System packages are installed with Homebrew, or with apt/dnf/pacman when passwordless `sudo` is available. Otherwise the script prints the exact manual command.
+
+### Optional: 21st UI components
+
+```
+claude plugin marketplace add 21st-dev/magic-mcp
+/plugin install 21st
+```
+
+Get an API key at [21st.dev/mcp](https://21st.dev/mcp) and set `API_KEY_21ST`.
+
+## What to bring
+
+- Logo (SVG preferred), brand colors (HEX) and font names/files
+- **Real product screenshots or screen recordings.** This matters most. A site URL also works, because it can be captured.
+- A quick braindump of the video you imagine
+- Length, aspect ratio and target channel (defaults: 20–40s, 1920x1080)
+- Optional: 1–2 reference videos you love, or let the skill find some
+
+## Bundled scripts
+
+```bash
+# search ~2,200 curated launch videos
+python3 scripts/find_refs.py "terminal devtool" --category "Developer tools" --limit 8 --details
+python3 scripts/find_refs.py --list-categories
+
+# reference -> cut times, change peaks, contact sheet, shots, palette
+bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug>
+```
+
+## Project structure
+
+```
+make-awesome-video/
+├── SKILL.md                      # the workflow + 4 gates
+├── install.sh                    # one-line installer
+├── agents/openai.yaml            # Codex interface metadata
+├── references/
+│   ├── setup.md                  # HyperFrames / Remotion / 21st commands
+│   ├── reference-analysis.md     # reference video -> style spec
+│   ├── storyboard-template.md    # brief.md + 3-variant storyboard format
+│   ├── director-notes.md         # camera vocabulary -> parameter changes
+│   └── quality-bar.md            # "reads as cheap" checklist
+└── scripts/
+    ├── setup.sh                  # check + install dependencies
+    ├── find_refs.py              # whatships.com catalog search
+    └── analyze_ref.sh            # reference video analysis
+```
+
+## Notes
+
+- Reference videos are used to study style only and are never placed in your output.
+- Remotion is free for teams of up to 3. Larger companies need a [company license](https://www.remotion.pro/license).
+- Not affiliated with HeyGen, Remotion, 21st or What Ships.
+
+## License
+
+[MIT](LICENSE)

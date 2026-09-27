@@ -1,0 +1,6 @@
+interface:
+  display_name: "Make Awesome Video"
+  short_description: "Reference-driven motion-graphics launch videos"
+  default_prompt: "Use $make-awesome-video to direct a launch video for my product: find references, write 3 storyboards, show stills, then render."
+policy:
+  allow_implicit_invocation: true

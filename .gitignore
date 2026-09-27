@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+
+# Secrets / local env
+.env
+.env.local
+.env*.local
+*.pem
+*.key
+
+# Caches / outputs from trying the skill inside this folder
+.cache/
+refs/
+renders/
+snapshots/
+node_modules/
+
+# Local agent / tooling state
+.omx/
+.senior-mode/
+.agents/
+.claude/
+.DS_Store
+*.log
