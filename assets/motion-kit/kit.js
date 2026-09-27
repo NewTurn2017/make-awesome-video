@@ -49,11 +49,14 @@
     // ---------- layout ----------
     // Scale font-size so each matched element's rendered width equals targetPx (motion-design type fills
     // the frame: 85–95% of width). Run at build time after fonts load and BEFORE measuring char positions.
-    // The element must shrink-wrap its text (absolute/inline-block/width:max-content), not a full-width block.
+    // Measures the text itself (a Range over the contents), so block-level lines work too: a block's own
+    // box is its parent's width, which made every line after the first in a multi-line stack come out tiny.
     K.fitWidth = (sel, targetPx) => {
       document.querySelectorAll(sel).forEach((el) => {
         const fs = parseFloat(getComputedStyle(el).fontSize);
-        const w = el.getBoundingClientRect().width || el.scrollWidth;
+        const r = document.createRange();
+        r.selectNodeContents(el);
+        const w = r.getBoundingClientRect().width || el.scrollWidth;
         if (w > 0) el.style.fontSize = (fs * targetPx) / w + "px";
       });
     };
