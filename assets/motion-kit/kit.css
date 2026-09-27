@@ -1,0 +1,33 @@
+/* make-awesome-video motion kit — styles for kit.js helpers */
+
+.mak-ch { display: inline-block; white-space: pre; }
+.mak-mask { display: block; overflow: hidden; }
+.mak-mask > * { display: block; }
+
+/* variable-font axes (tween --wght / --wdth with K.axis) */
+.mak-var { --wght: 900; --wdth: 86; font-variation-settings: "wght" var(--wght), "wdth" var(--wdth); }
+
+/* solid panel for K.panelWipe */
+.mak-panel { position: absolute; inset: 0; }
+
+/* ring iris wipe (K.ringWipe) — always on top of the composition root */
+#mak-wipe { position: absolute; inset: 0; z-index: 100; pointer-events: none; --in: 0px; --bin: 0px; --out: 0px; --bout: 0px; }
+#mak-wipe .w-a, #mak-wipe .w-f { position: absolute; inset: 0; }
+#mak-wipe .w-a { background: var(--mak-accent);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--in), #000 var(--in), #000 var(--out), transparent var(--out));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--in), #000 var(--in), #000 var(--out), transparent var(--out)); }
+#mak-wipe .w-f { background: var(--mak-fill);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--bin), #000 var(--bin), #000 var(--bout), transparent var(--bout));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--bin), #000 var(--bin), #000 var(--bout), transparent var(--bout)); }
+#mak-wipe .w-sym { position: absolute; left: 50%; top: 50%; width: 160px; margin: -80px 0 0 -80px; }
+
+/* word wall / checkerboard (K.wordWall) */
+.mak-wall { position: absolute; inset: 0; display: grid; }
+.mak-cell { display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
+.mak-cell.inv { background: var(--mak-ink, #111); color: var(--mak-paper, #eeeae3); }
+
+/* layered 3D extrusion (K.depthText / K.extrude) */
+.mak-depth { position: relative; display: inline-block; --dx: 3px; --dy: 3px; }
+.mak-depth-l { white-space: nowrap; }
+.mak-depth-l:not(.front) { position: absolute; left: 0; top: 0; transform: translate(calc(var(--i) * var(--dx)), calc(var(--i) * var(--dy))); }
+.mak-depth-l.front { position: relative; }

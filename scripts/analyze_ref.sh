@@ -1,11 +1,23 @@
 #!/usr/bin/env bash
 # Turn a reference video into measurable style data.
-# Usage: analyze_ref.sh <X/YouTube URL | local video file> <out_dir> [scene_threshold=0.3]
-# Outputs in <out_dir>: ref.mp4, scores.tsv, cuts.txt, peaks.txt, stats.txt, contact.png, shots/, palette.png
+# Usage: analyze_ref.sh <X/YouTube URL | local video file> <out_dir> [scene_threshold=0.3] [--fps N]
+#   --fps N   also write contact_dense.png: N frames/sec with timestamp labels (motion graphics: use 4)
+# Outputs in <out_dir>: ref.mp4, scores.tsv, cuts.txt, peaks.txt, stats.txt, contact.png,
+#                       contact_dense.png (with --fps), shots/, palette.png
 set -euo pipefail
 
-SRC="${1:?usage: analyze_ref.sh <url|file> <out_dir> [threshold]}"
-OUT="${2:?usage: analyze_ref.sh <url|file> <out_dir> [threshold]}"
+DENSE_FPS=""
+ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --fps) DENSE_FPS="${2:?--fps needs a number}"; shift 2 ;;
+    --fps=*) DENSE_FPS="${1#*=}"; shift ;;
+    *) ARGS+=("$1"); shift ;;
+  esac
+done
+set -- "${ARGS[@]}"
+SRC="${1:?usage: analyze_ref.sh <url|file> <out_dir> [threshold] [--fps N]}"
+OUT="${2:?usage: analyze_ref.sh <url|file> <out_dir> [threshold] [--fps N]}"
 TH="${3:-0.3}"
 
 for bin in ffmpeg ffprobe python3; do
@@ -96,6 +108,33 @@ for t in 0.1 $(sort -n -u "$OUT/cuts.txt" "$OUT/peaks.txt" | awk '{printf "%.2f\
   ffmpeg -loglevel error -y -ss "$t" -i "$V" -frames:v 1 -vf "scale=960:-2" \
     "$(printf '%s/shots/%02d_%ss.png' "$OUT" "$i" "$t")" || true
 done
+
+# 5b. dense labeled contact sheet (motion graphics change within a shot; 1 fps hides the technique)
+if [[ -n "$DENSE_FPS" ]]; then
+  rm -rf "$OUT/dense"; mkdir -p "$OUT/dense"
+  ffmpeg -loglevel error -y -i "$V" -vf "fps=$DENSE_FPS,scale=384:-2" "$OUT/dense/f_%04d.png"
+  python3 - "$OUT" "$DENSE_FPS" <<'PY'
+import glob, math, sys
+from PIL import Image, ImageDraw
+out, fps = sys.argv[1], float(sys.argv[2])
+frames = sorted(glob.glob(f"{out}/dense/f_*.png"))
+if frames:
+    w, h = Image.open(frames[0]).size
+    cols = 6
+    rows = math.ceil(len(frames) / cols)
+    sheet = Image.new("RGB", (cols * (w + 4), rows * (h + 4)), "black")
+    for i, f in enumerate(frames):
+        im = Image.open(f).convert("RGB")
+        d = ImageDraw.Draw(im)
+        label = f"{i / fps:.2f}s"
+        d.rectangle([0, 0, 8 + 8 * len(label), 20], fill=(0, 0, 0))
+        d.text((4, 4), label, fill=(255, 230, 0))
+        sheet.paste(im, ((i % cols) * (w + 4), (i // cols) * (h + 4)))
+    sheet.save(f"{out}/contact_dense.png")
+    print(f"contact_dense.png: {len(frames)} frames @ {fps:g} fps")
+PY
+  rm -rf "$OUT/dense"
+fi
 
 # 6. palette
 ffmpeg -loglevel error -y -i "$V" -vf "fps=2,scale=320:-2,palettegen=max_colors=12:stats_mode=full" \

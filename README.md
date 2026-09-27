@@ -15,6 +15,19 @@ Everyone uses the same model. The context you give it is what makes a video look
 
 The agent stops and waits for you at 4 gates: references, storyboard, stills and notes.
 
+### It figures out what kind of video you want
+
+No need to explain the genre. The skill detects the mode from what you give it:
+
+| You give it | Mode | What happens |
+|---|---|---|
+| Product URL, screenshots, brand | `launch` | whatships references → 3 storyboards → stills → render |
+| **A reference video + one word** ("like this, but CLAUDE") | `motion` | Reference is decomposed shot by shot at 4 fps; each technique (weight morph, panel split, word wall, 3D extrusion, noise field, particle type, lockup) is mapped to a HyperFrames block, animation rule or motion-kit helper; cuts are snapped to the music's beats; stills and the final render are compared side by side with the reference |
+| Card news / posters / static images | `info` | Signage or kiosk loop sized to the physical screen, with a seamless loop check |
+| Vertical, under 20s | `social` | Hook-first short |
+
+A bundled **motion kit** (`assets/motion-kit/`) provides tested, seek-safe GSAP helpers: `fitWidth` (type fills the frame), `typeOn`, `maskRise`, `slam`, variable-font `axis` morphs, `panelWipe`, brand `ringWipe` with loop seam, `wordWall` + `gridStagger`, CSS `depthText` extrusion, deterministic `noiseField`, and beat `snap`. A worked example (a 15-second kinetic-type showreel recreated from a reference) lives in `references/examples/`.
+
 ## Quick start
 
 ```bash
@@ -88,7 +101,11 @@ python3 scripts/find_refs.py "terminal devtool" --category "Developer tools" --l
 python3 scripts/find_refs.py --list-categories
 
 # reference -> cut times, change peaks, contact sheet, shots, palette
-bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug>
+# --fps 4 adds a timestamp-labeled dense sheet for motion-graphics references
+bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug> --fps 4
+
+# looping video: first frame must equal last frame
+python3 scripts/loop_seam.py renders/out.mp4
 ```
 
 ## Project structure
@@ -98,7 +115,13 @@ make-awesome-video/
 ├── SKILL.md                      # the workflow + 4 gates
 ├── install.sh                    # one-line installer
 ├── agents/openai.yaml            # Codex interface metadata
+├── assets/motion-kit/            # kit.js + kit.css (seek-safe GSAP helpers)
 ├── references/
+│   ├── modes.md                  # mode detection: launch / motion / info / social
+│   ├── shot-decomposition.md     # reference -> shot list, technique -> block/rule/kit map
+│   ├── motion-craft.md           # motif continuity, pacing curve, beat sync, easing, type
+│   ├── gotchas.md                # verified pitfalls and fixes
+│   ├── examples/                 # worked example: kinetic-type showreel recreation
 │   ├── setup.md                  # HyperFrames / Remotion / 21st commands
 │   ├── reference-analysis.md     # reference video -> style spec
 │   ├── storyboard-template.md    # brief.md + 3-variant storyboard format
@@ -107,7 +130,8 @@ make-awesome-video/
 └── scripts/
     ├── setup.sh                  # check + install dependencies
     ├── find_refs.py              # whatships.com catalog search
-    └── analyze_ref.sh            # reference video analysis
+    ├── analyze_ref.sh            # reference video analysis
+    └── loop_seam.py              # loop seam check
 ```
 
 ## Notes

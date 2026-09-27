@@ -15,6 +15,19 @@
 
 에이전트는 참조, 스토리보드, 정지 프레임, 노트 네 지점에서 멈추고 사용자의 결정을 기다립니다.
 
+### 어떤 영상인지 설명하지 않아도 됩니다
+
+주어진 입력만 보고 모드를 판별합니다.
+
+| 주는 것 | 모드 | 진행 |
+|---|---|---|
+| 제품 URL, 스크린샷, 브랜드 | `launch` | whatships 참조 → 스토리보드 3안 → 정지 프레임 → 렌더 |
+| **참조 영상 + 단어 하나** ("이것처럼, 단어는 CLAUDE") | `motion` | 참조를 초당 4프레임으로 샷 단위 분해하고, 기법(굵기 모핑, 패널 분할, 단어 벽, 3D 돌출, 노이즈 필드, 파티클 글자, 락업)마다 HyperFrames 블록·애니메이션 룰·모션 킷 헬퍼를 연결합니다. 컷은 음악 비트에 맞추고, 정지 프레임과 최종 렌더를 참조와 나란히 비교합니다 |
+| 카드뉴스·포스터 등 정적 이미지 | `info` | 실제 화면 크기에 맞춘 사이니지·키오스크 루프, 루프 이음새 검증 |
+| 세로, 20초 이하 | `social` | 훅 중심 숏폼 |
+
+**모션 킷**(`assets/motion-kit/`)에는 검증된 seek-safe GSAP 헬퍼가 들어 있습니다: `fitWidth`(글자가 화면 폭을 채움), `typeOn`, `maskRise`, `slam`, 가변 폰트 `axis` 모핑, `panelWipe`, 루프 이음새까지 처리하는 브랜드 `ringWipe`, `wordWall` + `gridStagger`, CSS `depthText` 돌출, 결정적 `noiseField`, 비트 `snap`. 참조 영상으로 15초 키네틱 타이포 쇼릴을 재현한 작업 예가 `references/examples/`에 있습니다.
+
 ## 빠른 시작
 
 ```bash
@@ -88,7 +101,11 @@ python3 scripts/find_refs.py "terminal devtool" --category "Developer tools" --l
 python3 scripts/find_refs.py --list-categories
 
 # 참조 영상 → 컷 시점, 변화 피크, 컨택트 시트, 샷, 팔레트
-bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug>
+# --fps 4: 모션 그래픽 참조용 타임스탬프 밀도 시트 추가
+bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug> --fps 4
+
+# 루프 영상: 첫 프레임과 마지막 프레임 일치 검증
+python3 scripts/loop_seam.py renders/out.mp4
 ```
 
 ## 프로젝트 구조
@@ -98,7 +115,13 @@ make-awesome-video/
 ├── SKILL.md                      # 워크플로 + 멈춤 지점 4개
 ├── install.sh                    # 한 줄 설치 스크립트
 ├── agents/openai.yaml            # Codex 인터페이스 메타데이터
+├── assets/motion-kit/            # kit.js + kit.css (seek-safe GSAP 헬퍼)
 ├── references/
+│   ├── modes.md                  # 모드 판별: launch / motion / info / social
+│   ├── shot-decomposition.md     # 참조 → 샷 리스트, 기법 → 블록·룰·킷 매핑
+│   ├── motion-craft.md           # 모티프 연속성, 페이싱 곡선, 비트 동기, 이징, 타이포
+│   ├── gotchas.md                # 실전에서 확인된 함정과 해결
+│   ├── examples/                 # 작업 예: 키네틱 타이포 쇼릴 재현
 │   ├── setup.md                  # HyperFrames / Remotion / 21st 명령
 │   ├── reference-analysis.md     # 참조 영상 → 스타일 스펙
 │   ├── storyboard-template.md    # brief.md + 스토리보드 3안 형식
@@ -107,7 +130,8 @@ make-awesome-video/
 └── scripts/
     ├── setup.sh                  # 의존성 확인 및 설치
     ├── find_refs.py              # whatships.com 카탈로그 검색
-    └── analyze_ref.sh            # 참조 영상 분석
+    ├── analyze_ref.sh            # 참조 영상 분석
+    └── loop_seam.py              # 루프 이음새 검증
 ```
 
 ## 참고

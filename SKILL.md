@@ -1,8 +1,8 @@
 ---
 name: make-awesome-video
-description: Direct a pro-level motion-graphics launch/product video with a coding agent — reference videos from whatships.com, HyperFrames (or Remotion) code-to-MP4 rendering, real UI components from 21st, brand + screenshot intake, 3 storyboard variants, per-scene still frames, then camera-language director notes. Use when the user wants a launch video, product demo video, promo/teaser, motion graphics video, or says "어썸 영상", "어썸영상 만들어줘", "런치 영상", "제품 소개 영상", "모션그래픽 영상", "프로모 영상", "출시 영상", "make-awesome-video", "launch video", "product video", "motion graphics video". Not for editing existing footage (use video-use) or AI-generated cinematic clips (use kie video-creator).
+description: Direct pro-level motion-graphics videos with a coding agent (HyperFrames or Remotion code → MP4). Auto-detects the kind of video from the inputs alone — product launch/promo, motion-design/kinetic-typography piece recreated from a reference video, card-news/signage/kiosk loop from static images, or vertical social hook — then runs reference analysis (shot-by-shot decomposition, beat sync), storyboard or shot-list approval, per-shot still frames compared against the reference, render, and camera-language director notes. Use when the user wants a launch video, product video, promo, motion graphics, kinetic typography, logo/title sequence, "make one like this video", card news animation, kiosk/signage video, or says "어썸 영상", "런치 영상", "제품 소개 영상", "모션그래픽 영상", "키네틱 타이포", "이 영상처럼 만들어줘", "카드뉴스 애니메이션", "키오스크 영상", "프로모 영상", "make-awesome-video". Not for editing existing footage (video-use) or AI-generated cinematic clips (kie video-creator).
 metadata:
-  short-description: Reference-driven, storyboard-gated motion-graphics video directing
+  short-description: Reference-driven, gated motion-graphics directing (launch, motion design, info, social)
 ---
 
 # Make Awesome Video
@@ -14,10 +14,22 @@ metadata:
 1. **스타일은 설명하지 말고 이름을 부른다.** 참조 영상 1–2개를 고르고 "이걸 맞춰"라고 한다.
 2. **영상은 코드다.** HyperFrames(기본) 또는 Remotion으로 장면을 코드로 쓰고 MP4로 렌더한다. 수정은 한 줄 고치고 재렌더.
 3. **UI는 발명하지 않는다.** 실제 제품 스크린샷, 또는 21st/shadcn 같은 실제 컴포넌트를 쓴다.
-4. **방향을 먼저 고르고, 움직임은 나중에.** 스토리보드 3안 → 장면별 정지 프레임 → 그다음에 애니메이션.
+4. **방향을 먼저 고르고, 움직임은 나중에.** 스토리보드 3안(`motion` 모드는 참조에서 역설계한 샷 리스트) → 장면별 정지 프레임 → 그다음에 애니메이션.
 5. **노트는 카메라 언어로.** "더 좋게"가 아니라 "줌 0.7x로 느리게", "여기 하드 컷", "버튼에 푸시 인".
+6. **종류를 묻지 않고 알아낸다.** 입력(참조 영상, 스크린샷, 카드 이미지, 문구)만으로 모드를 판별하고 한 줄로 알린다. "이 영상처럼, 단어는 CLAUDE" 한 줄이면 충분해야 한다.
 
 모든 산출물은 사용자의 현재 작업 폴더(cwd) 아래 프로젝트에 만든다. 스킬 폴더에는 쓰지 않는다.
+
+## 모드 (먼저 판별)
+
+| 모드 | 입력 신호 | 방향 게이트(G2) |
+|---|---|---|
+| `launch` | 제품 URL, 스크린샷, 기능 설명 | 스토리보드 3안 |
+| `motion` | **참조 영상 + 문구 하나** (제품 소재 없음) — 키네틱 타이포, 모션 쇼릴, 로고/타이틀 시퀀스 | **샷 리스트 승인** (참조가 곧 방향) |
+| `info` | 카드뉴스·포스터 등 정적 이미지 여러 장 → 사이니지/키오스크/안내 루프 | 스토리보드 3안 |
+| `social` | 9:16, 20초 이하, SNS | 훅 3안 |
+
+판별표 전체, 모드별 인테이크·기본값·게이트 차이: [references/modes.md](references/modes.md). 판별은 질문하지 않고 알린다 ("참조 영상 + 단어 하나 → 모션 디자인 모드로 진행합니다").
 
 ## 절대 규칙: 게이트
 
@@ -25,14 +37,16 @@ metadata:
 
 | 게이트 | 멈추는 지점 | 사용자가 하는 일 |
 |---|---|---|
-| G1 | 참조 후보 제시 후 | 참조 영상 1–2개 선택 |
-| G2 | 스토리보드 3안 제시 후 | 방향 1개 선택 (섞기 가능) |
-| G3 | 장면별 정지 프레임 제시 후 | 프레임 승인 또는 수정 지시 |
-| G4 | 첫 렌더 후 | 감독 노트 (반복) |
+| G1 | 참조 후보 제시 후 (`motion`: 주어진 참조 분석 결과 제시로 대체, 멈추지 않음) | 참조 영상 1–2개 선택 |
+| G2 | 스토리보드 3안 (`motion`: 샷 리스트) 제시 후 | 방향 선택 / 샷 리스트 승인 |
+| G3 | 정지 프레임 제시 후 (`motion`: 참조 동일 시점과 나란히) | 프레임 승인 또는 수정 지시 |
+| G4 | 첫 렌더 후 (`motion`: 참조 대비 차이 목록을 먼저 제시) | 감독 노트 (반복) |
 
 ## 워크플로
 
-### 0단계 — 인테이크 (브리프 수집)
+### 0단계 — 모드 판별 + 인테이크 (브리프 수집)
+
+먼저 [references/modes.md](references/modes.md) 판별표로 모드를 정하고, 셋업 확인(2단계 스크립트)을 병행한다. 인테이크는 모드별로 다르다. 아래 목록은 `launch` 기준이다. `motion`은 참조 영상 + 문구만 받고 나머지(색, 폰트 계열, 길이, 비율, 리듬, 음악 유무)는 참조에서 추론한다. 묻는 건 최대 2개(문구 배치, 음원). `info`는 원본 자료 + 설치 환경(화면 물리 크기, 시청 거리)이다.
 
 한 번에 묻고, 이미 받은 건 다시 묻지 않는다. 없는 항목은 합리적인 기본값을 제안한다.
 
@@ -45,9 +59,9 @@ metadata:
 
 결과를 프로젝트 루트의 `brief.md`로 저장한다. 템플릿은 [references/storyboard-template.md](references/storyboard-template.md) 의 "brief.md" 섹션.
 
-### 1단계 — 참조 영상 고르기 (G1)
+### 1단계 — 참조 영상 고르기·분석 (G1)
 
-whatships.com(X에 올라온 스타트업 런치 영상 큐레이션 디렉터리)에서 후보를 찾는다.
+사용자가 참조 영상을 줬으면(`motion` 모드는 항상) 후보 탐색을 건너뛰고 바로 분석한다. 없으면 whatships.com(X에 올라온 스타트업 런치 영상 큐레이션 디렉터리)에서 후보를 찾는다.
 
 ```bash
 python3 {baseDir}/scripts/find_refs.py "devtool terminal" --category "Developer tools" --limit 8 --details
@@ -64,7 +78,7 @@ python3 {baseDir}/scripts/find_refs.py --list-categories
 bash {baseDir}/scripts/analyze_ref.sh "<X post URL 또는 로컬 mp4>" refs/<slug>
 ```
 
-컷 타임스탬프, 평균 샷 길이, 컨택트 시트, 대표 팔레트를 뽑는다. 이것과 프레임을 직접 보고 [references/reference-analysis.md](references/reference-analysis.md) 형식으로 `refs/style-spec.md`를 쓴다. 다운로드가 실패하면(X 로그인 벽 등) 사용자에게 mp4를 받거나, 포스터 + 원본 영상 시청 기반으로 스펙을 쓰고 그 한계를 밝힌다. 참조 영상은 스타일 학습용으로만 쓰고 결과물에 그대로 넣지 않는다.
+컷 타임스탬프, 평균 샷 길이, 컨택트 시트, 대표 팔레트를 뽑는다. 모션 그래픽 참조는 `--fps 4`를 붙여 타임스탬프가 찍힌 밀도 높은 시트(`contact_dense.png`)를 만들고, 그걸 보며 [references/shot-decomposition.md](references/shot-decomposition.md) 대로 **샷 리스트**를 역설계한다. 참조에 음악이 있으면 음원을 프로젝트에 넣고 `npx hyperframes beats <project>`로 비트를 뽑아 컷이 비트 동기인지 확인한다. 이것과 프레임을 직접 보고 [references/reference-analysis.md](references/reference-analysis.md) 형식으로 `refs/style-spec.md`를 쓴다. 다운로드가 실패하면(X 로그인 벽 등) 사용자에게 mp4를 받거나, 포스터 + 원본 영상 시청 기반으로 스펙을 쓰고 그 한계를 밝힌다. 참조 영상은 스타일 학습용으로만 쓰고 결과물에 그대로 넣지 않는다.
 
 ### 2단계 — 빌드 도구 셋업
 
@@ -96,7 +110,11 @@ npx hyperframes init <project-name> --non-interactive --resolution landscape
 - **역할 분담:** 공식 스킬은 "어떻게 코드로 만드나", 이 스킬은 "무엇을 만들지와 언제 멈출지"를 맡는다. 공식 워크플로가 브리프에서 곧장 렌더로 가려 해도 이 스킬의 G1–G4 게이트가 우선한다.
 - 미리보기는 에이전트에서 막히지 않는 `npx hyperframes preview --background`(종료: `--stop`)를 쓴다.
 
-### 3단계 — 스토리보드 3안 (G2)
+### 3단계 — 스토리보드 3안 또는 샷 리스트 (G2)
+
+**`motion` 모드:** 3안을 쓰지 않는다. 참조가 곧 방향이다. `shots.md`(샷 리스트: 참조 시간 / 우리 시간 / 기법 / 이징 / 모티프 / 구현 / 우리 내용)를 [references/shot-decomposition.md](references/shot-decomposition.md) 형식으로 쓰고 승인받는다. 쓰기 전에 [references/motion-craft.md](references/motion-craft.md)(모티프 연속성, 페이싱 곡선, 비트 동기, 이징 사전)를 읽는다. 구현 열에는 매핑표에 있는 블록·룰·kit 이름만 쓴다.
+
+**그 외 모드:**
 
 브리프 + 스타일 스펙 + 스크린샷을 모두 넣고 **방향이 서로 다른** 3안을 쓴다. 같은 안을 세 번 다듬은 것이 아니어야 한다. 예:
 
@@ -119,13 +137,15 @@ npx hyperframes init <project-name> --non-interactive --resolution landscape
    npx hyperframes snapshot <project> --at 2,6 --against refs/<slug>/ref.mp4   # 참조와 나란히 비교
    ```
    스냅샷은 `<project>/snapshots/`에 저장되고 `contact-sheet.jpg`도 함께 생긴다. 이 단계에서는 타임라인이 정지 상태라 `check`가 "Timeline did not advance under seek"로 실패하는데, 정상이다. `check` 게이트는 5단계에서 적용한다.
-3. 프레임을 직접 열어 보고 [references/quality-bar.md](references/quality-bar.md) 체크리스트로 자체 검수한 뒤 사용자에게 보여준다.
+3. 프레임을 직접 열어 보고 [references/quality-bar.md](references/quality-bar.md) 체크리스트로 자체 검수한 뒤 사용자에게 보여준다. `motion` 모드는 `--against` 쌍 이미지를 보여주며 샷마다 참조와 다른 점을 먼저 밝힌다.
 
 **G3: 승인 전에는 애니메이션을 붙이지 않는다.** 정지 프레임 수정은 초 단위다.
 
 ### 5단계 — 애니메이션 & 렌더
 
 승인된 프레임에 스타일 스펙의 페이싱·이징·트랜지션을 입힌다.
+
+**모션 킷:** 검증된 헬퍼를 프로젝트로 복사해 쓴다 (`{baseDir}/assets/motion-kit/kit.js`, `kit.css` → `<project>/assets/motion-kit/`). `const K = MAK(tl)` 한 줄로 화면 폭 맞춤(`fitWidth`), 등장(`up`, `pop`, `maskRise`, `typeOn`, `slam`), 가변 폰트 축(`axis`), 카메라(`pushIn`, `whipIn/Out`), 패널(`panelWipe`), 브랜드 링 아이리스(`ringWipe`, 루프 이음새 포함), 단어 벽(`wordWall`, `gridStagger`), CSS 3D 돌출(`depthText`, `extrude`), 노이즈 필드(`noiseField`), 비트 스냅(`snap`, `strong`)을 쓴다. 실제 작업 예: [references/examples/claude-motion-shots.md](references/examples/claude-motion-shots.md) (15초 키네틱 타이포 쇼릴 재현 샷 리스트와 구현 메모). 블록이 더 맞으면 `npx hyperframes add <block>`. 어느 쪽인지는 샷 리스트의 구현 열을 따른다.
 
 ```bash
 npx hyperframes check <project>          # lint + 런타임 검증 + 레이아웃 검사
@@ -135,7 +155,9 @@ npx hyperframes render <project> --quality draft --output <project>/renders/draf
 
 - 초안은 `--quality draft`로 빠르게. 최종은 기본(`looks`) 또는 `--quality delivery`.
 - 렌더 후 `snapshot`으로 몇 프레임을 다시 보고 quality-bar를 통과했는지 확인한 뒤 보여준다.
-- 음악이 있으면 `npx hyperframes beats`로 비트를 뽑아 컷을 비트에 맞춘다.
+- 음악이 있으면 `npx hyperframes beats`로 비트를 뽑아 컷을 비트에 맞춘다 (도착 시점을 비트에: `at = beat - duration`).
+- 루프 영상(`info` 사이니지 등)은 렌더 후 `python3 {baseDir}/scripts/loop_seam.py <mp4>`로 첫/끝 프레임 일치를 검증한다.
+- 실전 함정(배경 제거 모델 한계, 마스크 오버레이 오탐, 대비 실패 등): [references/gotchas.md](references/gotchas.md)
 
 ### 6단계 — 감독 노트 루프 (G4)
 
@@ -145,6 +167,7 @@ npx hyperframes render <project> --quality draft --output <project>/renders/draf
 - "더 좋게", "더 역동적으로" 같은 모호한 노트가 오면 추측으로 랜덤 수정하지 말고, 카메라 어휘로 된 2–3개 해석을 제시해 고르게 한다.
 - 노트가 필요한데 사용자가 막막해하면 에이전트가 먼저 감독 노트 초안 3–5개를 제안한다 (예: "장면 2→3 크로스페이드를 하드 컷으로", "CTA 버튼에 1.0→1.08 푸시 인").
 - 수정은 해당 장면만 고치고 재렌더한다. 전체를 다시 쓰지 않는다.
+- `motion` 모드는 렌더 후 `snapshot --against`로 샷별 참조 대비 차이를 카메라 어휘로 정리해 **노트 초안으로 먼저 제시**한다 (예: "4번 패널 닫힘이 참조보다 2배 느림 → 0.3s로").
 
 ## 완료 보고
 
@@ -152,6 +175,10 @@ npx hyperframes render <project> --quality draft --output <project>/renders/draf
 
 ## 참고 파일
 
+- [references/modes.md](references/modes.md) — 모드 판별표, 모드별 인테이크·게이트·기본값
+- [references/shot-decomposition.md](references/shot-decomposition.md) — 참조 → 샷 리스트, 기법 → 블록/룰/kit 매핑표, 참조 대비 검증
+- [references/motion-craft.md](references/motion-craft.md) — 모티프 연속성, 페이싱 곡선, 비트 동기, 이징 사전, 가변 폰트, 3D·셰이더 원칙
+- [references/gotchas.md](references/gotchas.md) — 실전 함정과 해결 (소재 누끼, check 오탐, 루프 이음새)
 - [references/setup.md](references/setup.md) — HyperFrames / Remotion / 21st 설치·확인
 - [references/reference-analysis.md](references/reference-analysis.md) — 참조 영상을 스타일 스펙으로 바꾸는 법
 - [references/storyboard-template.md](references/storyboard-template.md) — brief.md, 스토리보드 3안 형식
@@ -159,4 +186,6 @@ npx hyperframes render <project> --quality draft --output <project>/renders/draf
 - [references/quality-bar.md](references/quality-bar.md) — "싸구려로 읽히는" 신호 체크리스트
 - `scripts/setup.sh` — HyperFrames / Remotion / ffmpeg / yt-dlp 확인 및 자동 설치
 - `scripts/find_refs.py` — whatships.com 카탈로그 검색
-- `scripts/analyze_ref.sh` — 참조 영상 다운로드 + 컷 검출 + 컨택트 시트 + 팔레트
+- `scripts/analyze_ref.sh` — 참조 영상 다운로드 + 컷/변화 피크 검출 + 컨택트 시트(`--fps 4`로 타임스탬프 밀도 시트) + 팔레트
+- `scripts/loop_seam.py` — 루프 영상 첫/끝 프레임 일치 검증
+- `assets/motion-kit/` — 검증된 GSAP 헬퍼 (`kit.js`, `kit.css`)

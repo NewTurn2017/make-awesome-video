@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link rel="stylesheet" href="assets/motion-kit/kit.css" />
+    <script src="assets/motion-kit/kit.js"></script>
+    <style>
+      @font-face { font-family: "Archivo"; font-weight: 100 900; font-stretch: 62% 125%; src: url("assets/fonts/Archivo-var.woff2") format("woff2"); }
+      @font-face { font-family: "JBMono"; font-weight: 500; src: url("assets/fonts/JBMono.woff2") format("woff2"); }
+      :root { --paper: #e3e1db; --ink: #131313; --orange: #fe4a1d; --dark: #101010; --brand: #ffffff; --font-display: "Archivo", sans-serif; --mak-ink: #131313; --mak-paper: #e3e1db; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--paper); }
+      #root { width: 100%; height: 100%; position: relative; overflow: hidden; font-family: "Archivo", sans-serif; color: var(--ink); }
+      .scene { position: absolute; inset: 0; overflow: hidden; }
+      .big { --wght: 900; --wdth: 84; font-variation-settings: "wght" var(--wght), "wdth" var(--wdth); line-height: 0.84; letter-spacing: -0.03em; white-space: nowrap; }
+      .fitw { display: inline-block; }
+      .mono { font-family: "JBMono", monospace; font-size: 22px; letter-spacing: 0.02em; }
+      .sq { position: absolute; background: var(--orange); }
+      .gridbg { position: absolute; inset: 0; background-image: linear-gradient(rgba(19,19,19,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(19,19,19,.07) 1px, transparent 1px); background-size: 60px 60px; }
+      .corner { position: absolute; width: 22px; height: 22px; border-color: rgba(19,19,19,.45); border-style: solid; }
+
+      /* S1 */
+      #g1 .vl { position: absolute; top: 0; width: 2px; height: 100%; background: rgba(19,19,19,.28); }
+      #sq1 { left: 260px; top: 70px; width: 96px; height: 96px; }
+      #swoosh { position: absolute; left: 500px; top: 300px; width: 900px; height: 34px; background: var(--orange); border-radius: 50%; }
+
+      /* S2–S6 */
+      #word { position: absolute; left: 60px; top: 330px; font-size: 330px; }
+      #cursor { left: 0; top: 0; width: 110px; height: 30px; }
+      #panel { background: var(--orange); }
+      #split { position: absolute; left: 70px; top: 150px; font-size: 330px; z-index: 3; }
+      #split .ln { display: block; width: max-content; }
+      #think { position: absolute; z-index: 3; left: 60px; top: 330px; font-size: 360px; color: #fff; }
+      #tdot { z-index: 3; left: 60px; top: 330px; width: 50px; height: 50px; background: var(--ink); }
+
+      /* S7 CODE */
+      #g4 .half { position: absolute; left: 960px; top: 0; width: 960px; height: 100%; background: var(--orange); }
+      #g4 .circle { position: absolute; left: 1180px; top: 280px; width: 520px; height: 520px; border-radius: 50%; background: var(--ink); }
+      #code { position: absolute; left: 40px; top: 120px; width: 300px; height: 840px; }
+      #code span { position: absolute; left: 250px; bottom: 0; font-size: 280px; transform-origin: left bottom; }
+      #sq4 { left: 600px; top: 520px; width: 44px; height: 44px; }
+
+      /* S8 MAKE */
+      #make { position: absolute; right: 90px; top: 60px; font-size: 190px; }
+      #arcs { position: absolute; left: 0; bottom: 0; width: 1100px; height: 900px; }
+      #sq5 { left: 1150px; top: 520px; width: 44px; height: 44px; }
+
+      /* S9 */
+      #huge { position: absolute; left: 50px; top: 300px; font-size: 420px; }
+      #sq6 { left: 1160px; top: 820px; width: 60px; height: 60px; }
+
+      /* S10 word wall */
+      .wall { position: absolute; left: 50px; right: 50px; top: 50px; bottom: 50px; font-weight: 800; letter-spacing: -0.02em; }
+      #w1 { top: 250px; bottom: 250px; }
+      #w1 .mak-cell { font-size: 150px; }
+      #w2 .mak-cell { font-size: 150px; }
+      #w3 .mak-cell { font-size: 88px; }
+      #w4 .mak-cell { font-size: 52px; }
+      #w5 .mak-cell { font-size: 20px; font-weight: 600; }
+      #w5 .mak-cell.hot { background: var(--orange); color: #fff; }
+
+      /* S11 dark 3D */
+      #g8 { background: var(--dark); }
+      #g8 .floor { position: absolute; left: 0; right: 0; bottom: 0; height: 420px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.05) 100%); }
+      #sq8 { left: 1140px; top: 300px; width: 60px; height: 60px; }
+      #rig { position: absolute; left: 240px; top: 430px; }
+      #d3, #d3o { font-size: 330px; font-weight: 900; letter-spacing: 0.01em; line-height: 1; }
+      #d3 .mak-depth-l.front { background: repeating-linear-gradient(100deg, #f4f4f4 0 26px, #6a6a6a 26px 44px); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      #d3o { position: absolute; left: 0; top: 0; white-space: nowrap; background: repeating-linear-gradient(100deg, #ff6a3d 0 26px, #7a1a05 26px 44px); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+      /* S12 noise */
+      #g9 { background: var(--orange); }
+      #noise { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: auto; }
+
+      /* S13 particles host bg */
+      #g10 { background: var(--orange); }
+
+      /* S14 lockup */
+      #g11 { background: var(--orange); }
+      #lpaper { background: var(--paper); }
+      #lword { position: absolute; left: 60px; top: 600px; font-size: 250px; }
+      #lword .mak-mask { display: inline-block; }
+      #lword .ch { display: inline-block; }
+      #ldot { width: 54px; height: 54px; left: 0; top: 0; }
+      #lrule { position: absolute; left: 64px; top: 930px; width: 1330px; height: 2px; background: var(--ink); transform-origin: left center; }
+      #llabel { position: absolute; left: 64px; top: 950px; font-size: 30px; }
+      #ltag { position: absolute; right: 70px; top: 60px; color: #fff; text-align: right; line-height: 1.5; }
+      #ticks { position: absolute; right: 80px; bottom: 70px; width: 260px; height: 160px; display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(6, 1fr); }
+      #ticks i { display: block; width: 4px; height: 4px; background: #fff; margin: auto; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1920" data-height="1080">
+      <!-- your own music track (beats: npx hyperframes beats .). The original test used the reference track locally for beat comparison only. -->
+      <audio id="music" src="assets/music.m4a" data-start="0" data-duration="15" data-track-index="5"></audio>
+
+      <section id="g1" class="scene clip" data-start="0" data-duration="1.92" data-track-index="0">
+        <div class="gridbg" id="g1grid"></div>
+        <div id="lines"></div>
+        <div class="sq" id="sq1"></div>
+        <div id="swoosh"></div>
+      </section>
+
+      <section id="g2" class="scene clip" data-start="1.92" data-duration="4.22" data-track-index="0">
+        <div class="gridbg"></div>
+        <div class="corner" id="c1" style="left:40px;top:40px;border-width:2px 0 0 2px"></div>
+        <div class="corner" id="c2" style="right:40px;top:40px;border-width:2px 2px 0 0"></div>
+        <div class="corner" id="c3" style="left:40px;bottom:40px;border-width:0 0 2px 2px"></div>
+        <div class="corner" id="c4" style="right:40px;bottom:40px;border-width:0 2px 2px 0"></div>
+        <div id="word" class="big mak-var">CLAUDE</div>
+        <div class="sq" id="cursor"></div>
+        <div id="split" class="big mak-var"><span class="ln" id="sp1" data-layout-allow-overlap>CLA</span><span class="ln" id="sp2" data-layout-allow-overlap>UDE</span></div>
+        <div class="mak-panel" id="panel"></div>
+        <div id="think" class="big mak-var">THINK</div>
+        <div class="sq" id="tdot"></div>
+      </section>
+
+      <section id="g4" class="scene clip" data-start="6.14" data-duration="0.47" data-track-index="0">
+        <div class="gridbg"></div>
+        <div class="half" id="half"></div>
+        <div class="circle" id="circle"></div>
+        <div id="code"><span class="big" id="codew">CODE</span></div>
+        <div class="sq" id="sq4"></div>
+      </section>
+
+      <section id="g5" class="scene clip" data-start="6.61" data-duration="0.47" data-track-index="0">
+        <div class="gridbg"></div>
+        <svg id="arcs" viewBox="0 0 1100 900">
+          <path class="arc" d="M 0 280 A 620 620 0 0 1 620 900" fill="none" stroke="#fe4a1d" stroke-width="44" />
+          <path class="arc" d="M 0 430 A 470 470 0 0 1 470 900" fill="none" stroke="#131313" stroke-width="44" />
+          <path class="arc" d="M 0 580 A 320 320 0 0 1 320 900" fill="none" stroke="#fe4a1d" stroke-width="44" />
+          <path class="arc" d="M 0 730 A 170 170 0 0 1 170 900" fill="none" stroke="#131313" stroke-width="44" />
+        </svg>
+        <div id="make" class="big">MAKE</div>
+        <div class="sq" id="sq5"></div>
+      </section>
+
+      <section id="g6" class="scene clip" data-start="7.08" data-duration="0.46" data-track-index="0">
+        <div class="gridbg"></div>
+        <div id="huge" class="big">CLAUDE</div>
+        <div class="sq" id="sq6"></div>
+      </section>
+
+      <section id="g7" class="scene clip" data-start="7.54" data-duration="1.41" data-track-index="0">
+        <div class="wall" id="w1"></div>
+        <div class="wall" id="w2"></div>
+        <div class="wall" id="w3"></div>
+        <div class="wall" id="w4"></div>
+        <div class="wall" id="w5"></div>
+      </section>
+
+      <section id="g8" class="scene clip" data-start="8.95" data-duration="2.34" data-track-index="0">
+        <div class="floor"></div>
+        <div class="sq" id="sq8"></div>
+        <div id="rig"><div id="d3">claude</div><div id="d3o">claude</div></div>
+      </section>
+
+      <section id="g9" style="z-index:5" class="scene clip" data-start="11.29" data-duration="0.94" data-track-index="0">
+        <canvas id="noise" width="480" height="270"></canvas>
+      </section>
+
+      <section id="g10" class="scene clip" data-start="11.29" data-duration="2.11" data-track-index="0"></section>
+      <div
+        id="ptd"
+        data-composition-id="particle-text-dissolve"
+        data-composition-src="compositions/components/particle-text-dissolve.html"
+        data-variable-values='{"text":"CLAUDE","direction":"in","density":"high","accent":"green","exit":"none"}'
+        data-start="11.29"
+        data-duration="2.11"
+        data-track-index="1"
+        data-width="1920"
+        data-height="1080"
+        style="position:absolute;inset:0"
+      ></div>
+
+      <section id="g11" class="scene clip" data-start="13.4" data-duration="1.6" data-track-index="0">
+        <div class="mak-panel" id="lpaper"></div>
+        <div id="lword" class="big"></div>
+        <div class="sq" id="ldot"></div>
+        <div id="lrule"></div>
+        <div id="llabel" class="mono">Motion Design — made with Claude Code</div>
+        <div id="ltag" class="mono"><span style="display:block">CLAUDE / MOTION</span><span style="display:block">2026</span></div>
+        <div id="ticks"></div>
+      </section>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const K = MAK(tl);
+      const rnd = K.rand(7);
+
+      function build() {
+        // ---------- S1 grid open 0–1.92 ----------
+        const lines = document.getElementById("lines");
+        for (let i = 0; i < 16; i++) {
+          const d = document.createElement("div");
+          d.className = "vl";
+          d.style.left = 60 + i * 120 + "px";
+          lines.appendChild(d);
+        }
+        const vls = [...document.querySelectorAll("#g1 .vl")];
+        vls.forEach((v, i) => tl.fromTo(v, { scaleY: 0, transformOrigin: "50% 100%" }, { scaleY: 1, duration: 0.5, ease: "expo.out" }, 0.22 + rnd() * 0.9));
+        tl.fromTo("#g1grid", { opacity: 0 }, { opacity: 1, duration: 0.25 }, 1.45);
+        tl.fromTo("#sq1", { x: -420, scaleX: 3.2, filter: "blur(14px)" }, { x: 0, scaleX: 1, filter: "blur(0px)", duration: 0.3, ease: "expo.out" }, 0);
+        tl.to("#sq1", { x: 520, duration: 0.35, ease: "expo.inOut" }, 0.55);
+        tl.to("#sq1", { x: 1180, scale: 0.6, duration: 0.35, ease: "expo.inOut" }, 1.05);
+        tl.to("#sq1", { opacity: 0, duration: 0.05 }, 1.62);
+        tl.fromTo("#swoosh", { opacity: 0, scaleX: 0.1, x: 400, skewX: -20 }, { opacity: 1, scaleX: 1, x: 0, duration: 0.16, ease: "power4.out" }, 1.62);
+        tl.to("#swoosh", { scaleX: 0.05, x: -500, opacity: 0, duration: 0.14, ease: "power4.in" }, 1.78);
+
+        // ---------- fit type to frame width (director note: "type fills the frame") ----------
+        K.fitWidth("#word", 1760);
+        K.fitWidth("#huge", 1820);
+        K.fitWidth("#think", 1780);
+        K.fitWidth("#sp1", 1060);
+        K.fitWidth("#sp2", 1060);
+
+        // ---------- S2 type-on 1.92–4.26 ----------
+        const chars = K.splitChars("#word");
+        const w = document.getElementById("word");
+        const base = w.getBoundingClientRect();
+        const endOf = chars.map((c) => { const r = c.getBoundingClientRect(); return { x: r.right - 0, y: r.bottom }; });
+        const cps = 6 / 1.0;
+        const typeEnd = K.typeOn(chars, 1.95, { cps });
+        tl.set("#cursor", { x: base.left + 6, y: base.bottom - 60, opacity: 1 }, 1.92);
+        endOf.forEach((p, i) => tl.set("#cursor", { x: p.x + 14, y: base.bottom - 60 }, 1.95 + (i + 1) / cps));
+        // cursor becomes a square that sits on the E's shoulder (motif)
+        tl.to("#cursor", { width: 70, height: 70, y: base.top - 10, x: endOf[5].x - 70, duration: 0.35, ease: "expo.inOut" }, typeEnd + 0.12);
+        tl.fromTo("#word", { scale: 1, transformOrigin: "0% 50%" }, { scale: 1.03, duration: 1.6, ease: "none" }, 2.6);
+        K.pop(["#c1", "#c2", "#c3", "#c4"], 3.2, { from: 0.4, y: 0, st: 0.05, d: 0.35 });
+
+        // ---------- S3 panel 4.26 / S4 split 4.50 / S5 orange+thin 5.20 ----------
+        tl.fromTo("#panel", { xPercent: 100 }, { xPercent: 88, duration: 0.22, ease: "expo.out" }, 4.26);
+        tl.set(["#word", "#cursor"], { opacity: 0 }, 4.5);
+        tl.fromTo("#split", { opacity: 0 }, { opacity: 1, duration: 0.001 }, 4.5);
+        tl.fromTo("#sp2", { x: 520 }, { x: 0, duration: 0.3, ease: "expo.inOut" }, 4.5);
+        tl.to("#panel", { xPercent: 62, duration: 0.3, ease: "expo.inOut" }, 4.62);
+        tl.set("#panel", { xPercent: 0 }, 5.2);
+        tl.set("#split", { color: "#ffffff" }, 5.2);
+        K.axis("#split", 5.2, { "--wght": 900, "--wdth": 100 }, { "--wght": 110, "--wdth": 112 }, { d: 0.2, ease: "power3.out" });
+        // S6 THINK 5.43–5.90
+        tl.set("#split", { opacity: 0 }, 5.43);
+        tl.fromTo("#think", { opacity: 0, "--wght": 110, "--wdth": 125 }, { opacity: 1, duration: 0.001 }, 5.43);
+        K.axis("#think", 5.67, { "--wght": 110, "--wdth": 125 }, { "--wght": 900, "--wdth": 84 }, { d: 0.16, ease: "expo.out" });
+        K.pop("#tdot", 5.67, { from: 0, y: 0, d: 0.15 });
+        // S7 whip out 5.90–6.14
+        tl.to("#think", { rotation: -32, x: -700, y: 260, filter: "blur(22px)", duration: 0.24, ease: "power4.in" }, 5.9);
+        tl.to("#tdot", { opacity: 0, duration: 0.1 }, 5.9);
+
+        // ---------- S8 CODE 6.14–6.61 ----------
+        tl.fromTo("#codew", { rotation: -90, yPercent: 30, opacity: 0 }, { rotation: -90, yPercent: 0, opacity: 1, duration: 0.2, ease: "expo.out" }, 6.14);
+        tl.fromTo("#half", { xPercent: 100 }, { xPercent: 0, duration: 0.18, ease: "expo.out" }, 6.14);
+        tl.fromTo("#circle", { scale: 0 }, { scale: 1, duration: 0.3, ease: "expo.out" }, 6.2);
+        K.pop("#sq4", 6.25, { from: 0, y: 0, d: 0.15 });
+
+        // ---------- S9 MAKE + arcs 6.61–7.08 ----------
+        document.querySelectorAll("#arcs .arc").forEach((p) => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.dataset.len = L; });
+        tl.fromTo("#arcs .arc", { strokeDashoffset: (i, el) => el.dataset.len }, { strokeDashoffset: 0, duration: 0.32, ease: "expo.out", stagger: 0.04 }, 6.61);
+        tl.fromTo("#make", { xPercent: 12, opacity: 0 }, { xPercent: 0, opacity: 1, duration: 0.22, ease: "expo.out" }, 6.63);
+        K.pop("#sq5", 6.7, { from: 0, y: 0, d: 0.15 });
+
+        // ---------- S10 huge CLAUDE 7.08–7.54 ----------
+        K.slam("#huge", 7.08, { from: 1.25, d: 0.12 });
+        K.pop("#sq6", 7.2, { from: 0, y: 0, d: 0.15 });
+
+        // ---------- S11 word wall 7.54–8.95 (beat grid) ----------
+        const c1 = K.wordWall("#w1", "CLAUDE", 1, 2, { invertOdd: true });
+        const c2 = K.wordWall("#w2", "CLAUDE", 2, 2, { invertOdd: true });
+        const c3 = K.wordWall("#w3", "CLAUDE", 4, 4, {});
+        const c4 = K.wordWall("#w4", "CLAUDE", 6, 6, { invertOdd: true });
+        const c5 = K.wordWall("#w5", "CLAUDE", 12, 14, {});
+        c5.forEach((c, i) => { const col = i % 14, row = Math.floor(i / 14); c.classList.remove("inv"); if (col % 4 === 1 || (row === 6 && col > 4 && col < 10)) c.classList.add("hot"); });
+        const walls = ["#w1", "#w2", "#w3", "#w4", "#w5"], at = [7.54, 8.01, 8.25, 8.48, 8.71];
+        walls.forEach((id, i) => { tl.fromTo(id, { opacity: 0 }, { opacity: 1, duration: 0.001 }, at[i]); if (i < walls.length - 1) tl.set(id, { opacity: 0 }, at[i + 1]); });
+        K.gridStagger(c1, 2, 7.54, { from: { yPercent: 60, opacity: 0 }, to: { yPercent: 0, opacity: 1 } }, { d: 0.25, each: 0.08, fromWhere: "start" });
+        tl.fromTo("#w4", { x: -60, filter: "blur(4px)" }, { x: 60, filter: "blur(4px)", duration: 0.23, ease: "none" }, 8.48);
+        K.gridStagger(c5, 14, 8.71, { from: { opacity: 0, scale: 0.6 }, to: { opacity: 1, scale: 1 } }, { d: 0.12, each: 0.004, fromWhere: "center" });
+
+        // ---------- S12 dark 3D 8.95–11.29 ----------
+        K.depthText("#d3", { layers: 22, back: "#707070" }); // back layers must stay >= 3:1 vs the bg (check contrast)
+        K.pop("#sq8", 8.98, { from: 0, y: 0, d: 0.2 });
+        tl.fromTo("#rig", { x: -900, opacity: 0, rotationY: 28, transformPerspective: 1400 }, { x: 0, opacity: 1, rotationY: 14, transformPerspective: 1400, duration: 0.6, ease: "expo.out" }, 9.42);
+        K.extrude("#d3", 9.42, { dx: 3.5, dy: 2.2, d: 0.7 });
+        tl.to("#rig", { x: -120, rotationY: 6, transformPerspective: 1400, duration: 1.3, ease: "none" }, 10.02);
+        tl.fromTo("#d3o", { opacity: 0 }, { opacity: 1, duration: 0.001 }, 10.12);
+        tl.set("#d3o", { opacity: 0 }, 10.82);
+        tl.to("#sq8", { y: 120, x: -40, duration: 0.5, ease: "expo.inOut" }, 10.4);
+
+        // ---------- S13 noise field 11.29–12.23 (deterministic canvas) ----------
+        K.noiseField(document.getElementById("noise"), 11.29, 0.94, { scale: 110, band: 0.07, grain: 0.3 });
+
+        // ---------- S15 lockup 13.40–15.00 ----------
+        const lw = document.getElementById("lword");
+        lw.textContent = "CLAUDE"; K.fitWidth("#lword", 1300); lw.textContent = "";
+        "CLAUDE".split("").forEach((ch) => { const m = document.createElement("span"); m.className = "mak-mask"; const s = document.createElement("span"); s.className = "ch"; s.textContent = ch; m.appendChild(s); lw.appendChild(m); });
+        for (let i = 0; i < 60; i++) { const d = document.createElement("i"); document.getElementById("ticks").appendChild(d); }
+        tl.fromTo("#lpaper", { xPercent: -100 }, { xPercent: -22, duration: 0.34, ease: "expo.inOut" }, 13.4);
+        K.maskRise("#lword .ch", 13.55, { st: 0.045, d: 0.45 });
+        const lr = lw.getBoundingClientRect();
+        tl.set("#ldot", { x: lr.right + 10, y: lr.bottom - 54 - 38 }, 13.4);
+        tl.fromTo("#ldot", { scale: 0 }, { scale: 1, duration: 0.3, ease: "back.out(2.2)" }, 13.98);
+        tl.fromTo("#lrule", { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "expo.out" }, 13.9);
+        K.up(["#llabel", "#ltag"], 14.05, { y: 16, d: 0.4 });
+        tl.fromTo("#ticks i", { opacity: 0 }, { opacity: 1, duration: 0.001, stagger: { each: 0.006, grid: [6, 10], from: "end" } }, 14.1);
+
+        window.__timelines["main"] = tl;
+      }
+      document.fonts.load('900 330px "Archivo"').then(() => document.fonts.load('500 22px "JBMono"')).then(build);
+    </script>
+  </body>
+</html>
