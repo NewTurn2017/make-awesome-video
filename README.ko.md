@@ -12,6 +12,7 @@
 4. **컨텍스트 전부 투입.** 브랜드(로고·색·폰트), 제품 스크린샷, 참조, 브레인덤프를 넣어 **방향이 서로 다른 스토리보드 3안**을 받습니다.
 5. **움직이기 전에 정지 프레임.** 장면마다 대표 프레임을 1장씩 만듭니다. 스토리보드 수정은 몇 초면 되지만, 렌더 수정은 다시 렌더링해야 합니다.
 6. **감독 노트.** "모든 줌을 0.7x로 느리게", "여기 하드 컷", "버튼에 푸시 인" 같은 카메라 언어를 정확한 파라미터 변경으로 옮깁니다.
+7. **만든 에이전트가 채점하지 않습니다.** 렌더를 보여주기 전에, 브리프와 참조만 아는 새 서브에이전트가 실제 MP4로 판정합니다(정지 구간, 음량, 빈 화면, 글자 충돌, 전환). 수정할 때마다 또 다른 새 크리틱이 항목별로 확인하고, 모든 라운드는 원장에 남습니다.
 
 에이전트는 참조, 스토리보드, 정지 프레임, 노트 네 지점에서 멈추고 사용자의 결정을 기다립니다.
 
@@ -106,6 +107,14 @@ bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug>
 
 # 루프 영상: 첫 프레임과 마지막 프레임 일치 검증
 python3 scripts/loop_seam.py renders/out.mp4
+
+# 렌더 검수: 정지 구간(0.6초 넘는 홀드가 있으면 exit 1), 음량, 컨택트 시트
+bash scripts/frozen_time.sh renders/v1.mp4 --ignore-tail 1.5
+bash scripts/loudness.sh renders/v1.mp4
+bash scripts/contact_sheet.sh renders/v1.mp4 review/sheet.jpg 0.25 8 6
+
+# 듣기 전에 효과음 후보 거르기 (붕붕거림 / 쉿 소리 / 너무 김)
+python3 scripts/sfx_candidates.py assets/sfx/*.mp3
 ```
 
 ## 프로젝트 구조
@@ -115,23 +124,32 @@ make-awesome-video/
 ├── SKILL.md                      # 워크플로 + 멈춤 지점 4개
 ├── install.sh                    # 한 줄 설치 스크립트
 ├── agents/openai.yaml            # Codex 인터페이스 메타데이터
+├── LICENSES/                     # 서드파티 고지 (motion-video-kit, MIT)
 ├── assets/motion-kit/            # kit.js + kit.css (seek-safe GSAP 헬퍼)
 ├── references/
 │   ├── modes.md                  # 모드 판별: launch / motion / info / social
 │   ├── shot-decomposition.md     # 참조 → 샷 리스트, 기법 → 블록·룰·킷 매핑
 │   ├── motion-craft.md           # 모티프 연속성, 페이싱 곡선, 비트 동기, 이징, 타이포
+│   ├── motion-grammar.md         # 장면 사이 규칙, 메커니즘 카탈로그, 런치 영상 참조 28편
+│   ├── critic-loop.md            # 빌더 ≠ 판정자: 게이트별 크리틱 라운드, 프롬프트, 원장
+│   ├── audio.md                  # 음악 선택·편집, 효과음, 대역별 레벨, 믹스 목표
+│   ├── three-d.md                # 결정적 Three.js, 랩 먼저, 히어로 모션 실측, 모션 블러
 │   ├── gotchas.md                # 실전에서 확인된 함정과 해결
 │   ├── examples/                 # 작업 예: 키네틱 타이포 쇼릴 재현
 │   ├── setup.md                  # HyperFrames / Remotion / 21st 명령
 │   ├── reference-analysis.md     # 참조 영상 → 스타일 스펙
 │   ├── storyboard-template.md    # brief.md + 스토리보드 3안 형식
 │   ├── director-notes.md         # 카메라 어휘 → 파라미터 변경
-│   └── quality-bar.md            # "싸구려로 보이는" 신호 체크리스트
+│   └── quality-bar.md            # 측정 기준 + "싸구려로 보이는" 신호 체크리스트
 └── scripts/
     ├── setup.sh                  # 의존성 확인 및 설치
     ├── find_refs.py              # whatships.com 카탈로그 검색
     ├── analyze_ref.sh            # 참조 영상 분석
-    └── loop_seam.py              # 루프 이음새 검증
+    ├── loop_seam.py              # 루프 이음새 검증
+    ├── frozen_time.sh            # 렌더의 정지 구간·최장 홀드
+    ├── loudness.sh               # 통합 LUFS, LRA, true peak, 초당 short-term
+    ├── contact_sheet.sh          # 검수·크리틱용 컨택트 시트
+    └── sfx_candidates.py         # 효과음 후보 거르기 (numpy 필요)
 ```
 
 ## 참고
@@ -139,6 +157,7 @@ make-awesome-video/
 - 참조 영상은 스타일 학습에만 쓰고, 결과물에는 넣지 않습니다.
 - Remotion은 3인 이하 팀까지 무료입니다. 그보다 큰 회사는 [회사 라이선스](https://www.remotion.pro/license)가 필요합니다.
 - HeyGen, Remotion, 21st, What Ships와 제휴 관계가 없습니다.
+- 크리틱 루프, 모션 문법, 오디오 규칙, 3D 노트, 측정 스크립트는 echris6의 [motion-video-kit](https://github.com/echris6/motion-video-kit)(MIT)을 옮겨 고친 것입니다. 원 저작권 고지는 [LICENSES/motion-video-kit.txt](LICENSES/motion-video-kit.txt)에 있습니다.
 
 ## 라이선스
 

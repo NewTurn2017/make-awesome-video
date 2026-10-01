@@ -26,7 +26,8 @@
 | G3 정지 프레임 | 장면당 1장 | **샷당 1장 + 참조 동일 시점과 나란히** (`snapshot --against`) | 장면당 1장 | 장면당 1장 |
 | G4 노트 | 카메라 어휘 | 카메라 어휘 + **참조 대비 차이 목록을 에이전트가 먼저 제시** | 가독성(거리) 중심 | 첫 1초 강도 |
 | 사운드 | 선택 | **참조에 음악이 있으면 비트 동기화 필수** (참조 음악은 싱크 분석용, 결과물엔 사용자가 준 음원 또는 무음) | 기본 무음 | 음악 필수 |
-| 핵심 문서 | director-notes, quality-bar | **shot-decomposition, motion-craft** | quality-bar(가독성), gotchas | motion-craft(훅) |
+| 핵심 문서 | motion-grammar, director-notes, quality-bar, audio | **shot-decomposition, motion-craft** | quality-bar(가독성), gotchas | motion-craft(훅), motion-grammar |
+| 크리틱 | 전체 영상 필수, 스토리보드 30초 이상 권장 | 전체 영상 필수 (참조 대비 차이 포함) | 전체 영상 필수 (거리 가독성, 루프 이음새) | 전체 영상 필수 (첫 1초) |
 
 ## `motion` 모드 최소 입력
 

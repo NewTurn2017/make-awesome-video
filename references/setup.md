@@ -94,3 +94,7 @@ claude plugin marketplace add 21st-dev/magic-mcp
 which yt-dlp ffmpeg ffprobe python3
 brew install yt-dlp ffmpeg   # 없을 때 (사용자 승인 후)
 ```
+
+## 측정 도구
+
+`scripts/frozen_time.sh`, `loudness.sh`, `contact_sheet.sh`는 ffmpeg 필터 `tblend`, `signalstats`, `ebur128`, `tile`을 쓴다 (표준 빌드에 포함). `ffmpeg -hide_banner -filters | grep -E "ebur128|tblend|signalstats"`로 확인한다. `scripts/sfx_candidates.py`는 numpy가 필요하다 (`python3 -c "import numpy"`, 없으면 `python3 -m pip install --user numpy`).

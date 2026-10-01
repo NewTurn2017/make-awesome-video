@@ -12,6 +12,7 @@ Everyone uses the same model. The context you give it is what makes a video look
 4. **Full context in.** Brand (logo, colors, fonts), product screenshots, references and your braindump, turned into **3 storyboard variants that each take a different direction**.
 5. **Still frames before motion.** One hero frame per scene. Fixing a storyboard takes seconds; fixing a render means rendering again.
 6. **Director notes.** Camera language like "slow all zooms to 0.7x", "hard cut here" or "push in on the button" is mapped to exact parameter changes.
+7. **The builder never grades its own work.** Before you see a render, a fresh sub-agent that knows only the brief and the references judges the actual MP4: frozen time, loudness, empty frames, text collisions, transitions. Each revision is verified item by item by another fresh critic, and every round goes into a ledger.
 
 The agent stops and waits for you at 4 gates: references, storyboard, stills and notes.
 
@@ -106,6 +107,14 @@ bash scripts/analyze_ref.sh "<X post URL | YouTube URL | local mp4>" refs/<slug>
 
 # looping video: first frame must equal last frame
 python3 scripts/loop_seam.py renders/out.mp4
+
+# render review: frozen stretches (exit 1 on a hold > 0.6s), loudness, contact sheet
+bash scripts/frozen_time.sh renders/v1.mp4 --ignore-tail 1.5
+bash scripts/loudness.sh renders/v1.mp4
+bash scripts/contact_sheet.sh renders/v1.mp4 review/sheet.jpg 0.25 8 6
+
+# screen sound-effect candidates before listening (boomy / hissy / too long)
+python3 scripts/sfx_candidates.py assets/sfx/*.mp3
 ```
 
 ## Project structure
@@ -115,23 +124,32 @@ make-awesome-video/
 ├── SKILL.md                      # the workflow + 4 gates
 ├── install.sh                    # one-line installer
 ├── agents/openai.yaml            # Codex interface metadata
+├── LICENSES/                     # third-party notices (motion-video-kit, MIT)
 ├── assets/motion-kit/            # kit.js + kit.css (seek-safe GSAP helpers)
 ├── references/
 │   ├── modes.md                  # mode detection: launch / motion / info / social
 │   ├── shot-decomposition.md     # reference -> shot list, technique -> block/rule/kit map
 │   ├── motion-craft.md           # motif continuity, pacing curve, beat sync, easing, type
+│   ├── motion-grammar.md         # scene-to-scene rules, mechanism catalog, 28 launch-film references
+│   ├── critic-loop.md            # builder != judge: critic rounds per gate, prompts, ledger
+│   ├── audio.md                  # music choice and editing, sound effects, per-band levels, mix targets
+│   ├── three-d.md                # deterministic Three.js, lab first, measured hero motion, motion blur
 │   ├── gotchas.md                # verified pitfalls and fixes
 │   ├── examples/                 # worked example: kinetic-type showreel recreation
 │   ├── setup.md                  # HyperFrames / Remotion / 21st commands
 │   ├── reference-analysis.md     # reference video -> style spec
 │   ├── storyboard-template.md    # brief.md + 3-variant storyboard format
 │   ├── director-notes.md         # camera vocabulary -> parameter changes
-│   └── quality-bar.md            # "reads as cheap" checklist
+│   └── quality-bar.md            # measured targets + "reads as cheap" checklist
 └── scripts/
     ├── setup.sh                  # check + install dependencies
     ├── find_refs.py              # whatships.com catalog search
     ├── analyze_ref.sh            # reference video analysis
-    └── loop_seam.py              # loop seam check
+    ├── loop_seam.py              # loop seam check
+    ├── frozen_time.sh            # frozen stretches + longest hold in a render
+    ├── loudness.sh               # integrated LUFS, LRA, true peak, short-term per second
+    ├── contact_sheet.sh          # contact sheets for review and critics
+    └── sfx_candidates.py         # sound-effect screening (needs numpy)
 ```
 
 ## Notes
@@ -139,6 +157,7 @@ make-awesome-video/
 - Reference videos are used to study style only and are never placed in your output.
 - Remotion is free for teams of up to 3. Larger companies need a [company license](https://www.remotion.pro/license).
 - Not affiliated with HeyGen, Remotion, 21st or What Ships.
+- The critic loop, motion grammar, audio rules, 3D notes and the measurement scripts are adapted from [motion-video-kit](https://github.com/echris6/motion-video-kit) by echris6 (MIT). Its notice is in [LICENSES/motion-video-kit.txt](LICENSES/motion-video-kit.txt).
 
 ## License
 

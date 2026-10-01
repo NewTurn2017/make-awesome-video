@@ -70,6 +70,7 @@ curl -fsSL -o assets/fonts/Archivo-var.woff2 "https://cdn.jsdelivr.net/npm/@font
 - 유체/노이즈 텍스처 샷은 kit `noiseField`(결정적 canvas)로 충분하다. 셰이더 블록은 데모 컴포지션이라 바로 끼울 수 없다 (shot-decomposition.md 블록 사용 메모).
 - CSS 레이어 돌출은 "쌓인 두께"까지만 낸다. 참조가 원근·조명·반사 바닥이 있는 진짜 3D면 Three.js가 필요하고, 아니면 차이를 샷 리스트에 명시한다.
 - 3D/셰이더 구간은 정지 프레임 게이트(G3)에서 가장 많이 틀어진다. 해당 샷은 먼저 단독 렌더로 확인한다.
+- Three.js를 쓰면 [three-d.md](three-d.md)의 결정적 렌더 계약, 실측 모션 곡선, 모션 블러, 사실감 체크리스트를 따른다.
 
 ## 8. 락업
 
